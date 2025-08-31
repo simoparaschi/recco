@@ -4,4 +4,4 @@ from django.http import HttpResponse
 
 # Create your views here.
 def hello(request):
-    return HttpResponse("hello")
+    return render(request, "myplaylist/index.html")
