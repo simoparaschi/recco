@@ -1,12 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 
 
 # Create your models here.
-
-class User(AbstractUser):
-    pass
-
 
 class PlaylistSpotify(models.Model):
     name = models.CharField(max_length=50)
@@ -27,16 +23,15 @@ class Track(models.Model):
 
 # JOIN table
 class PlaylistSearched(models.Model):
-    playlist_spotify = models.ForeignKey(PlaylistSpotify, related_name="playlist_spotify")
-    track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="track_spotify")
+    playlist_spotify = models.ForeignKey(PlaylistSpotify, on_delete=models.CASCADE, related_name="playlist_searched")
+    track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="track_searched")
 
 
 
 class Recco(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="searcher")
-    playlist_spotify = models.ForeignKey(PlaylistSpotify, related_name="playlist_spotify")
+    playlist_spotify = models.ForeignKey(PlaylistSpotify, on_delete=models.CASCADE, related_name="playlist_spotify")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -52,5 +47,5 @@ class ReccoTracks(models.Model):
 
 # JOIN table
 class Favourite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="searcher")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="favouriter")
     recco_tracks = models.ForeignKey(ReccoTracks, on_delete=models.CASCADE, related_name="reccomended_tracks")
