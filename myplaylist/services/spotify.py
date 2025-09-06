@@ -4,7 +4,6 @@ import base64
 import requests
 from urllib.parse import urlencode
 import requests
-from django.http import JsonResponse
 
 
 
@@ -48,28 +47,25 @@ def callback(request):
     auth_bytes = auth_string.encode("utf-8")
     auth_base64 = str(base64.b64encode(auth_bytes).decode("utf-8"))
 
-    payload = {
-        "code": code,
-        "redirect_uri": REDIRECT_URI,
-        "grant_type": "authorization_code"
-    }
+    if code:
+        payload = {
+            "code": code,
+            "redirect_uri": REDIRECT_URI,
+            "grant_type": "authorization_code"
+        }
 
-    headers = {
-        "Authorization": f"Basic {auth_base64}",
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
+        headers = {
+            "Authorization": f"Basic {auth_base64}",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
 
-    response = requests.post(token_url, headers=headers, data=payload)
+        response = requests.post(token_url, headers=headers, data=payload)
 
 
     return response.json()
 
 def get_playlist(tokens):
     access_token = tokens["access_token"]
-    refresh_token = tokens["refresh_token"]
-    expires_in = tokens["expires_in"]
-
-    print(f"ACCE {access_token} -- REF {refresh_token} -- EXP {expires_in}")
 
     url = "https://api.spotify.com/v1/me/playlists"
     headers = {
