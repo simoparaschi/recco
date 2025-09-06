@@ -1,13 +1,19 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from myplaylist.services.spotify import get_token, login_spotify
+from myplaylist.services.spotify import login_spotify, callback
 
 
 # Create your views here.
-def hello(request):
-    test = get_token()
+def spotify_login(request):
     spotify_url = login_spotify()
+
     return render(request, "myplaylist/index.html",{
-        "test": test,
         "spotify_url": spotify_url
+    })
+
+def spotify_callback(request):
+    response = callback(request)
+    print(f"RESPONSE {response}")
+    return render(request, "myplaylist/dashboard.html",{
+        "response": response
     })
