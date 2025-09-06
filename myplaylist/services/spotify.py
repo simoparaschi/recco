@@ -90,3 +90,7 @@ def get_playlist(token):
 
     response = requests.get(url, headers=headers)
     return response.json()
+
+
+def get_playlist_id(url):
+    pass

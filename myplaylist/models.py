@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 class PlaylistSpotify(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=200)
+    spotify_id = models.CharField()
     spotify_url = models.CharField()
 
     def __str__(self):
