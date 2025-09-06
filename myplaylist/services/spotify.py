@@ -13,7 +13,7 @@ load_dotenv(find_dotenv())
 CLIENT_ID = os.environ['CLIENT_ID']
 CLIENT_SECRET = os.environ['CLIENT_SECRET']
 REDIRECT_URI = "http://127.0.0.1:8000/callback"
-
+TOKEN_URL = "https://accounts.spotify.com/api/token"
 
 # Request Spotify authorization
 # Using Authorization Code Flow
@@ -40,9 +40,9 @@ def login_spotify():
 
 
 # Request Access Token
-def callback(request):
+def get_token(request):
     code = request.GET.get("code")
-    token_url = "https://accounts.spotify.com/api/token"
+
     auth_string = f"{CLIENT_ID }:{CLIENT_SECRET}"
     auth_bytes = auth_string.encode("utf-8")
     auth_base64 = str(base64.b64encode(auth_bytes).decode("utf-8"))
@@ -59,17 +59,33 @@ def callback(request):
             "Content-Type": "application/x-www-form-urlencoded"
         }
 
-        response = requests.post(token_url, headers=headers, data=payload)
+        response = requests.post(TOKEN_URL, headers=headers, data=payload)
 
 
     return response.json()
 
-def get_playlist(tokens):
-    access_token = tokens["access_token"]
 
+def refresh_token(token):
+    payload = {
+        "grant_type": "refresh_token",
+        "refresh_token": token,
+        "client_id": CLIENT_ID
+    }
+
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+
+    response = requests.post(TOKEN_URL, headers=headers, data=payload)
+
+    return response.json()
+
+
+
+def get_playlist(token):
     url = "https://api.spotify.com/v1/me/playlists"
     headers = {
-        "Authorization": f"Bearer {access_token}"
+        "Authorization": f"Bearer {token}"
     }
 
     response = requests.get(url, headers=headers)
