@@ -43,7 +43,6 @@ def login_spotify():
 # Request Access Token
 def callback(request):
     code = request.GET.get("code")
-
     token_url = "https://accounts.spotify.com/api/token"
     auth_string = f"{CLIENT_ID }:{CLIENT_SECRET}"
     auth_bytes = auth_string.encode("utf-8")
@@ -63,4 +62,19 @@ def callback(request):
     response = requests.post(token_url, headers=headers, data=payload)
 
 
+    return response.json()
+
+def get_playlist(tokens):
+    access_token = tokens["access_token"]
+    refresh_token = tokens["refresh_token"]
+    expires_in = tokens["expires_in"]
+
+    print(f"ACCE {access_token} -- REF {refresh_token} -- EXP {expires_in}")
+
+    url = "https://api.spotify.com/v1/me/playlists"
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+
+    response = requests.get(url, headers=headers)
     return response.json()
