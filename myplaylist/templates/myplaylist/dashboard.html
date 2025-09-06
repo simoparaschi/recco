@@ -1,0 +1,11 @@
+{% extends "myplaylist/layout.html" %}
+
+{% block body %}
+  <h1>Dash</h1>
+
+  {% for item in list_playlist %}
+    <p>{{ item }}</p>
+  {% endfor %}
+
+
+{% endblock %}
