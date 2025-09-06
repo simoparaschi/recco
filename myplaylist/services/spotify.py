@@ -4,6 +4,7 @@ import base64
 import requests
 from urllib.parse import urlencode
 import requests
+import re
 
 
 
@@ -18,6 +19,11 @@ TOKEN_URL = "https://accounts.spotify.com/api/token"
 # Request Spotify authorization
 # Using Authorization Code Flow
 # https://developer.spotify.com/documentation/web-api/tutorials/code-flow
+
+
+# Raised when an regex input validation error occurs
+class CleanError(Exception):
+    pass
 
 # Request User Authorization
 def login_spotify():
@@ -93,4 +99,13 @@ def get_playlist(token):
 
 
 def get_playlist_id(url):
-    pass
+    try:
+        # Match the regex and extract the playlist ID
+        matches = re.search(r'playlist/(\w*).*', url)
+        print(matches.group(1))
+        return matches.group(1)  # This will raise an AttributeError if matches is None
+
+    except AttributeError:
+        raise CleanError("Invalid Spotify URL format. Could not extract track ID.")
+    except Exception as e:
+        raise CleanError(f"An error occurred while processing the input: {e}")
