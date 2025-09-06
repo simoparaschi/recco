@@ -49,6 +49,9 @@ def dashboard(request):
     list_playlist = []
     for item in playlists["items"]:
         list_playlist.append(item["name"])
+        spotify_url = item["external_urls"]["spotify"]
+        print(f"URL {spotify_url}")
+
 
 
     return render(request, "myplaylist/dashboard.html",{
