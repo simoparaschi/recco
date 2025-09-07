@@ -34,6 +34,7 @@ class Recco(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
     playlist_spotify = models.ForeignKey(PlaylistSpotify, on_delete=models.CASCADE, related_name="playlist_spotify")
+    is_favourite = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -44,10 +45,4 @@ class Recco(models.Model):
 # JOIN table
 class ReccoTracks(models.Model):
     track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="track_spotify")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="searcher")
-
-
-# JOIN table
-class Favourite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="favouriter")
-    recco_tracks = models.ForeignKey(ReccoTracks, on_delete=models.CASCADE, related_name="reccomended_tracks")
+    recco = models.ForeignKey(Recco, on_delete=models.CASCADE, related_name="reccomendation")
