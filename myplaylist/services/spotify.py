@@ -102,7 +102,6 @@ def get_playlist_id(url):
     try:
         # Match the regex and extract the playlist ID
         matches = re.search(r'playlist/(\w*).*', url)
-        print(matches.group(1))
         return matches.group(1)  # This will raise an AttributeError if matches is None
 
     except AttributeError:

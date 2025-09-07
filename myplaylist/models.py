@@ -8,6 +8,8 @@ class PlaylistSpotify(models.Model):
     name = models.CharField(max_length=50)
     spotify_id = models.CharField()
     spotify_url = models.CharField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="playlist_creator")
+
 
     def __str__(self):
         return f"playlist {self.name}"
