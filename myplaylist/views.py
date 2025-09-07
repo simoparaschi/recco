@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect
-from myplaylist.services.spotify import login_spotify, get_token, get_playlist, refresh_token
+from myplaylist.services.spotify import login_spotify, get_token, get_playlist, refresh_token, get_playlist_id
 from datetime import datetime
-
-
+from .models import PlaylistSpotify
 
 # Create your views here.
 def spotify_login(request):
@@ -50,7 +49,9 @@ def dashboard(request):
     for item in playlists["items"]:
         list_playlist.append(item["name"])
         spotify_url = item["external_urls"]["spotify"]
-        print(f"URL {spotify_url}")
+        spotify_id = get_playlist_id(spotify_url)
+        PlaylistSpotify.objects.get_or_create(name=item["name"], spotify_id=spotify_id, spotify_url=spotify_url, user=request.user)
+
 
 
 
