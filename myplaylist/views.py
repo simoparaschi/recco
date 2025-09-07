@@ -50,7 +50,8 @@ def dashboard(request):
         list_playlist.append(item["name"])
         spotify_url = item["external_urls"]["spotify"]
         spotify_id = get_playlist_id(spotify_url)
-        PlaylistSpotify.save(name=item["name"], spotify_id=spotify_id, spotify_url=spotify_url, user=request.user)
+        PlaylistSpotify.objects.get_or_create(name=item["name"], spotify_id=spotify_id, spotify_url=spotify_url, user=request.user)
+
 
 
 
