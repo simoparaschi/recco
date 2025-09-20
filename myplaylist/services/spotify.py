@@ -100,12 +100,6 @@ def get_playlist(token):
 
 
 def get_playlist_id(url):
-    try:
-        # Match the regex and extract the playlist ID
-        matches = re.search(r'playlist/(\w*).*', url)
-        return matches.group(1)  # This will raise an AttributeError if matches is None
-
-
-    except Exception as e:
-        message = "Invalid Spotify URL format. Could not extract track ID." if isinstance(e, AttributeError) else "An error occurred while processing the input:"
-        raise CleanError(f"{message}: {e}")
+    # Match the regex and extract the playlist ID
+    matches = re.search(r'playlist/(\w*).*', url)
+    return matches.group(1)  # This will raise an AttributeError if matches is None
