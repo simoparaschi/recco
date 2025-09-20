@@ -1,11 +1,8 @@
 from django.shortcuts import render, redirect
-from myplaylist.services.spotify import login_spotify, get_token, get_playlist, spotify_refresh_token, get_playlist_id # check all of these, long
-from myplaylist.services.session import save_access_tokens, get_user_tokens, is_expired,update_tokens
-from myplaylist.services.playlist import sync_playlist
+from myplaylist.services.spotify import login_spotify, get_token_spotify, get_playlist_spotify, refresh_token_spotify # check all of these, long
+from myplaylist.services.session import save_access_tokens, get_user_tokens, check_token_expiration, update_tokens
+from myplaylist.services.playlist import sync_playlist, ExtractPlaylistIdError
 from django.contrib.auth.decorators import login_required
-from datetime import datetime
-from .models import PlaylistSpotify
-
 
 
 
@@ -19,7 +16,7 @@ def spotify_login(request):
 
 
 def spotify_callback(request):
-    tokens = get_token(request)
+    tokens = get_token_spotify(request)
 
     # Save access tokens in session
     save_access_tokens(request, tokens)
@@ -35,17 +32,20 @@ def dashboard(request):
         return redirect("")
 
     # Check if the token has expired
-    if is_expired(request):
-        new_tokens = spotify_refresh_token(tokens["refresh_token"])
+    if check_token_expiration(request):
+        new_tokens = refresh_token_spotify(tokens["refresh_token"])
         update_tokens(request, new_tokens)
 
 
     # Get user's playlists
-    playlists = get_playlist(tokens["access_token"])
+    playlists = get_playlist_spotify(tokens["access_token"])
 
 
     # Display user's playlists
-    list_playlist = sync_playlist(playlists, request)
+    try:
+        list_playlist = sync_playlist(playlists, request)
+     except ExtractPlaylistIdError as e:
+        print("Could not extract playlist. {e}")
 
 
     return render(request, "myplaylist/dashboard.html",{

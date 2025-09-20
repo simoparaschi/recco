@@ -16,7 +16,7 @@ def get_user_tokens(request):
     }
 
 # Check if token is expired
-def is_expired(request):
+def check_token_expiration(request):
     return datetime.now().timestamp() > request.session["expires_in"]
 
 # Update tokens after refresh

@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views
-from myplaylist.services.spotify import get_token
 
 
 urlpatterns = [
