@@ -24,6 +24,7 @@ def spotify_callback(request):
     return redirect("dashboard")
 
 
+
 def dashboard(request):
     access_token = request.session.get("access_token")
     refresh_token = request.session.get("refresh_token")
