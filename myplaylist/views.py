@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from myplaylist.services.spotify import login_spotify, get_token, get_playlist, spotify_refresh_token, get_playlist_id
+from myplaylist.services.session import save_access_tokens, get_user_tokens, is_expired,update_tokens
+from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from .models import PlaylistSpotify
 
@@ -22,35 +24,28 @@ def spotify_login(request):
 def spotify_callback(request):
     tokens = get_token(request)
 
-
     # Save access tokens in session
-    request.session["access_token"] = tokens["access_token"]
-    request.session["refresh_token"] = tokens["refresh_token"]
-    request.session["expires_in"] =  datetime.now().timestamp() + tokens["expires_in"]
-
+    save_access_tokens(request, tokens)
 
     return redirect("dashboard")
 
 
-
+@login_required
 def dashboard(request):
-    access_token = request.session.get("access_token")
-    refresh_token = request.session.get("refresh_token")
-    expires_in = request.session.get("expires_in")
+    tokens = get_user_tokens(request)
 
-
-    if not access_token:
+    if not tokens["access_token"]:
         return redirect("")
 
     # Check if the token has expired
-    if datetime.now().timestamp() > expires_in:
-        new_tokens = spotify_refresh_token(refresh_token)
-        request.session["access_token"] = new_tokens["access_token"]
-        request.session["expires_in"] = datetime.now().timestamp() + new_tokens["expires_in"]
+    if is_expired(request):
+        new_tokens = spotify_refresh_token(tokens["refresh_token"])
+        update_tokens(request, new_tokens)
+
 
 
     # Get user's playlists
-    playlists = get_playlist(access_token)
+    playlists = get_playlist(tokens["access_token"])
 
     # Display user's playlists
     list_playlist = []
