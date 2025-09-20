@@ -1,7 +1,14 @@
 from django.shortcuts import render, redirect
-from myplaylist.services.spotify import login_spotify, get_token, get_playlist, refresh_token, get_playlist_id
+from myplaylist.services.spotify import login_spotify, get_token, get_playlist, spotify_refresh_token, get_playlist_id
 from datetime import datetime
 from .models import PlaylistSpotify
+
+
+
+# Raised when an regex input validation error occurs
+class CleanError(Exception):
+    pass
+
 
 # Create your views here.
 def spotify_login(request):
@@ -15,10 +22,11 @@ def spotify_login(request):
 def spotify_callback(request):
     tokens = get_token(request)
 
+
     # Save access tokens in session
     request.session["access_token"] = tokens["access_token"]
     request.session["refresh_token"] = tokens["refresh_token"]
-    request.session["expires_in"] = datetime.now().timestamp() + tokens["expires_in"]
+    request.session["expires_in"] =  datetime.now().timestamp() + tokens["expires_in"]
 
 
     return redirect("dashboard")
@@ -36,8 +44,7 @@ def dashboard(request):
 
     # Check if the token has expired
     if datetime.now().timestamp() > expires_in:
-        new_tokens = refresh_token(refresh_token)
-
+        new_tokens = spotify_refresh_token(refresh_token)
         request.session["access_token"] = new_tokens["access_token"]
         request.session["expires_in"] = datetime.now().timestamp() + new_tokens["expires_in"]
 
