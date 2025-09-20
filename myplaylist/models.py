@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 
 
 # Create your models here.
-
 class PlaylistSpotify(models.Model):
     name = models.CharField(max_length=50)
     spotify_id = models.CharField()
@@ -34,7 +33,7 @@ class Recco(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
     playlist_spotify = models.ForeignKey(PlaylistSpotify, on_delete=models.CASCADE, related_name="playlist_spotify")
-    is_favourite = models.BooleanField(default=False)
+    is_favourite = models.BooleanField(default=False) # update name
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
