@@ -105,6 +105,7 @@ def get_playlist_id(url):
         matches = re.search(r'playlist/(\w*).*', url)
         return matches.group(1)  # This will raise an AttributeError if matches is None
 
+
     except Exception as e:
-        message = "Invalid Spotify URL format. Could not extract track ID." if Exception is AttributeError else "An error occurred while processing the input:"
+        message = "Invalid Spotify URL format. Could not extract track ID." if isinstance(e, AttributeError) else "An error occurred while processing the input:"
         raise CleanError(f"{message}: {e}")
