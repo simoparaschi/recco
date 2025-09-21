@@ -35,8 +35,7 @@ def login_spotify():
         "client_id": CLIENT_ID,
         "response_type": "code",
         "scope": scope,
-        "redirect_uri": REDIRECT_URI,
-        "show_dialog": True
+        "redirect_uri": REDIRECT_URI
     }
 
     return f"{auth_url}{urlencode(params)}"
