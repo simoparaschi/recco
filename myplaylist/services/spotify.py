@@ -22,6 +22,8 @@ AUTH_BASE64 = str(base64.b64encode(AUTH_BYTES).decode("utf-8"))
 # Request Spotify authorization
 # Using Authorization Code Flow
 # https://developer.spotify.com/documentation/web-api/tutorials/code-flow
+# Credits to Imdad Codes for the tutorial
+# https://youtu.be/olY_2MW4Eik?feature=shared
 
 
 
@@ -35,7 +37,8 @@ def login_spotify():
         "client_id": CLIENT_ID,
         "response_type": "code",
         "scope": scope,
-        "redirect_uri": REDIRECT_URI
+        "redirect_uri": REDIRECT_URI,
+        "show_dialog": True # DELETE - Only here for testing purposes so we force login each time
     }
 
     return f"{auth_url}{urlencode(params)}"
@@ -45,6 +48,7 @@ def login_spotify():
 # Request Access Token
 def get_token_spotify(request):
     code = request.GET.get("code")
+    error = request.GET.get("error")
     if code:
         payload = {
             "code": code,
@@ -57,9 +61,14 @@ def get_token_spotify(request):
             "Content-Type": "application/x-www-form-urlencoded"
         }
 
-        response = requests.post(TOKEN_URL, headers=headers, data=payload)
+        response = requests.post(TOKEN_URL, headers=headers, data=payload).json()
+    elif error:
+        print(error)
+        response = {
+            "error": error
+        }
 
-    return response.json()
+    return response
 
 
 # A refresh token is a security credential that allows client applications to obtain new access tokens
