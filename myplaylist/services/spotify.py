@@ -4,7 +4,7 @@ import base64
 import requests
 from urllib.parse import urlencode
 import requests
-import re
+
 
 
 
@@ -44,7 +44,7 @@ def login_spotify():
 
 
 # Request Access Token
-def get_token(request):
+def get_token_spotify(request):
     code = request.GET.get("code")
     if code:
         payload = {
@@ -63,7 +63,7 @@ def get_token(request):
     return response.json()
 
 
-def spotify_refresh_token(token):
+def refresh_token_spotify(token):
     payload = {
         "grant_type": "refresh_token",
         "refresh_token": token,
@@ -80,16 +80,10 @@ def spotify_refresh_token(token):
 
 
 
-def get_playlist(token):
+def get_playlist_spotify(token):
     url = "https://api.spotify.com/v1/me/playlists"
     headers = {
         "Authorization": f"Bearer {token}"
     }
     response = requests.get(url, headers=headers)
     return response.json()
-
-
-def get_playlist_id(url):
-    # Match the regex and extract the playlist ID
-    matches = re.search(r'playlist/(\w*).*', url)
-    return matches.group(1)  # This will raise an AttributeError if matches is None
