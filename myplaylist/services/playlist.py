@@ -1,16 +1,5 @@
 from myplaylist.models import PlaylistSpotify
 
-# class ExtractPlaylistIdError(Exception):
-#     pass
-
-# def get_playlist_id(url):
-#     # Match the regex and extract the playlist ID
-#     matches = re.search(r'playlist/(\w+).*', url)
-#     if not matches:
-#         raise ExtractPlaylistIdError(f"Invalid playlist ID from: {url}")
-#     return matches.group(1)  # This will raise an AttributeError if matches is None
-
-
 
 def sync_playlist(playlists, request):
     list_playlist = []
