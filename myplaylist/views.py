@@ -19,7 +19,7 @@ def spotify_callback(request):
     tokens = get_token_spotify(request)
 
     # Check if user canceled during Auth, if so redirect to login
-    if tokens["error"]:
+    if tokens.get("error"):
         return redirect("/login")
 
     # Save access tokens in session
@@ -32,7 +32,8 @@ def spotify_callback(request):
 def dashboard(request):
     tokens = get_user_tokens(request)
 
-    if not tokens["access_token"]:
+    # Check if we have expiration token, if not redirect to login
+    if not tokens.get("expires_in"):
         return redirect("/login")
 
     # Check if the token has expired
