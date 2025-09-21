@@ -63,6 +63,9 @@ def get_token_spotify(request):
     return response.json()
 
 
+# A refresh token is a security credential that allows client applications to obtain new access tokens
+# without requiring users to reauthorize the application
+
 def refresh_token_spotify(token):
     payload = {
         "grant_type": "refresh_token",
