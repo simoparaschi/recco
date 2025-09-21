@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from myplaylist.services.spotify import login_spotify, get_token_spotify, get_playlist_spotify, refresh_token_spotify # check all of these, long
 from myplaylist.services.session import save_access_tokens, get_user_tokens, check_token_expiration, update_tokens
-from myplaylist.services.playlist import sync_playlist, ExtractPlaylistIdError
+from myplaylist.services.playlist import sync_playlist
 from django.contrib.auth.decorators import login_required
 
 
@@ -41,13 +41,12 @@ def dashboard(request):
     playlists = get_playlist_spotify(tokens["access_token"])
 
 
-    # Display user's playlists
-    try:
-        list_playlist = sync_playlist(playlists, request)
-     except ExtractPlaylistIdError as e:
-        print("Could not extract playlist. {e}")
+    # Display user's playlists and total count of, in dashboard
+    list_playlist, nb_playlists = sync_playlist(playlists, request)
+
 
 
     return render(request, "myplaylist/dashboard.html",{
-        "list_playlist": list_playlist
+        "list_playlist": list_playlist,
+        "nb_playlists": nb_playlists
     })
