@@ -4,6 +4,7 @@ import base64
 import requests
 from urllib.parse import urlencode
 import requests
+import json
 
 
 
@@ -25,7 +26,8 @@ AUTH_BASE64 = str(base64.b64encode(AUTH_BYTES).decode("utf-8"))
 # Credits to Imdad Codes for the tutorial
 # https://youtu.be/olY_2MW4Eik?feature=shared
 
-
+class SpotifyAPIError(Exception):
+    pass
 
 # Request User Authorization
 def login_spotify():
@@ -49,6 +51,7 @@ def login_spotify():
 def get_token_spotify(request):
     code = request.GET.get("code")
     error = request.GET.get("error")
+    # Check whether user gives access or cancels process
     if code:
         payload = {
             "code": code,
@@ -60,15 +63,13 @@ def get_token_spotify(request):
             "Authorization": f"Basic {AUTH_BASE64}",
             "Content-Type": "application/x-www-form-urlencoded"
         }
-
-        response = requests.post(TOKEN_URL, headers=headers, data=payload).json()
+        make_api_call("POST", TOKEN_URL, headers=headers, data=payload)
     elif error:
-        print(error)
-        response = {
+        data = {
             "error": error
         }
 
-    return response
+    return data
 
 
 # A refresh token is a security credential that allows client applications to obtain new access tokens
@@ -90,7 +91,7 @@ def refresh_token_spotify(token):
     return response.json()
 
 
-
+# https://developer.spotify.com/documentation/web-api/reference/get-list-users-playlists
 def get_playlist_spotify(token):
     url = "https://api.spotify.com/v1/me/playlists"
     headers = {
@@ -98,3 +99,22 @@ def get_playlist_spotify(token):
     }
     response = requests.get(url, headers=headers)
     return response.json()
+
+
+def make_api_call(method, url, headers=None, data=None):
+    if method == "POST":
+        try:
+            response = requests.post(url, headers=headers, data=data)
+            response = "not-json" # COMMENTING OUT FOR TESTING response.raise_for_status() # to raise HTTPErrors
+        except requests.ConnectionError:
+            raise SpotifyAPIError("Network error - Unable to connect to the API.")
+        except requests.Timeout:
+            raise SpotifyAPIError("Request timed out - Please try again later.")
+        except requests.HTTPError as http_err:
+            raise SpotifyAPIError(f"HTTP error occurred - {http_err}")
+
+        try:
+            data = response.json()
+        except (AttributeError, json.JSONDecodeError):
+            raise SpotifyAPIError("Failed to parse response as JSON")
+    return data
