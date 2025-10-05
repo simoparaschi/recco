@@ -53,17 +53,17 @@ def dashboard(request):
 
     # Get user's playlists
     try:
-        playlists = get_playlist_spotify(tokens["access_token"])
+        playlists_data = get_playlist_spotify(tokens["access_token"])
     except SpotifyAPIError as e:
         messages.error(request, f"Error: {e}")
         return redirect(LOGIN_SCREEN)
 
 
     # Get total nb of playlists
-    nb_playlists = get_playlist_total_nb(playlists, request)
+    nb_playlists = get_playlist_total_nb(playlists_data)
 
     # Save playlits in db
-    save_playlist(playlists, request)
+    save_playlist(playlists_data, request)
 
 
     return render(request, "myplaylist/dashboard.html",{
@@ -85,18 +85,18 @@ def see_playlist(request, playlist_id):
         update_tokens(request, new_tokens)
 
 
-    spotify_id = PlaylistSpotify.objects.get(id=playlist_id).spotify_id
+    playlist = PlaylistSpotify.objects.get(id=playlist_id, user=request.user)
 
     # Get user's songs per playlist
     try:
-        playlist = get_playlist_items_spotify(tokens["access_token"], spotify_id)
+        playlist_data = get_playlist_items_spotify(tokens["access_token"], playlist.spotify_id)
     except SpotifyAPIError as e:
         messages.error(request, f"Error: {e}")
         return redirect(LOGIN_SCREEN)
 
     # Save playlit's songs in db
-    save_playlist_songs(playlist, request)
+    save_playlist_songs(playlist_data, playlist)
 
     return render(request, "myplaylist/playlist.html",{
-        "playlist": PlaylistSpotify.objects.get(id=playlist_id)
+        "playlist": playlist
     })

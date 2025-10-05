@@ -8,6 +8,7 @@ class PlaylistSpotify(models.Model):
     spotify_id = models.CharField()
     spotify_url = models.CharField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="playlist_creator")
+    tracks = models.ManyToManyField('Track', related_name='playlists')
 
 
     def __str__(self):
@@ -23,10 +24,10 @@ class Track(models.Model):
     def __str__(self):
         return f"Track {self.name}"
 
-# JOIN table
-class PlaylistSearched(models.Model):
-    playlist_spotify = models.ForeignKey(PlaylistSpotify, on_delete=models.CASCADE, related_name="playlist_searched")
-    track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="track_searched")
+# # JOIN table
+# class PlaylistSearched(models.Model):
+#     playlist_spotify = models.ForeignKey(PlaylistSpotify, on_delete=models.CASCADE, related_name="playlist_searched")
+#     track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="track_searched")
 
 
 
