@@ -18,6 +18,7 @@ class Track(models.Model):
     artist = models.CharField(max_length=50)
     album = models.CharField(max_length=50)
     spotify_url = models.CharField()
+    spotify_id = models.CharField()
 
     def __str__(self):
         return f"Track {self.name}"
