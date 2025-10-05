@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from myplaylist.services.spotify import login_spotify, get_token_spotify, get_playlist_spotify, refresh_token_spotify, SpotifyAPIError # check all of these, long
+from myplaylist.services.spotify import login_spotify, get_token_spotify, get_playlist_spotify, refresh_token_spotify, SpotifyAPIError, get_playlist_items_spotify # check all of these, long
 from myplaylist.services.session import save_access_tokens, get_user_tokens, check_token_expiration, update_tokens
-from myplaylist.services.playlist import sync_playlist
+from myplaylist.services.playlist import save_playlist, get_playlist_total_nb, save_playlist_songs
 from django.contrib.auth.decorators import login_required
+from myplaylist.models import PlaylistSpotify
 
 LOGIN_SCREEN = "/login"
 
@@ -51,15 +52,51 @@ def dashboard(request):
 
 
     # Get user's playlists
-    playlists = get_playlist_spotify(tokens["access_token"])
+    try:
+        playlists_data = get_playlist_spotify(tokens["access_token"])
+    except SpotifyAPIError as e:
+        messages.error(request, f"Error: {e}")
+        return redirect(LOGIN_SCREEN)
 
 
-    # Display user's playlists and total count of, in dashboard
-    list_playlist, nb_playlists = sync_playlist(playlists, request)
+    # Get total nb of playlists
+    nb_playlists = get_playlist_total_nb(playlists_data)
 
+    # Save playlits in db
+    save_playlist(playlists_data, request)
 
 
     return render(request, "myplaylist/dashboard.html",{
-        "list_playlist": list_playlist,
-        "nb_playlists": nb_playlists
+        "nb_playlists": nb_playlists,
+        "playlists": PlaylistSpotify.objects.all()
+    })
+
+@login_required
+def see_playlist(request, playlist_id):
+    tokens = get_user_tokens(request)
+
+    # Check if we have expiration token, if not redirect to login
+    if not tokens.get("expires_in"):
+        return redirect(LOGIN_SCREEN)
+
+    # Check if the token has expired, if so request new one
+    if check_token_expiration(request):
+        new_tokens = refresh_token_spotify(tokens["refresh_token"])
+        update_tokens(request, new_tokens)
+
+
+    playlist = PlaylistSpotify.objects.get(id=playlist_id, user=request.user)
+
+    # Get user's songs per playlist
+    try:
+        playlist_data = get_playlist_items_spotify(tokens["access_token"], playlist.spotify_id)
+    except SpotifyAPIError as e:
+        messages.error(request, f"Error: {e}")
+        return redirect(LOGIN_SCREEN)
+
+    # Save playlit's songs in db
+    save_playlist_songs(playlist_data, playlist)
+
+    return render(request, "myplaylist/playlist.html",{
+        "playlist": playlist
     })
